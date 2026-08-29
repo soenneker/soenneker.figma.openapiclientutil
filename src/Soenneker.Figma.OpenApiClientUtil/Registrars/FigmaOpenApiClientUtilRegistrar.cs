@@ -13,6 +13,8 @@ public static class FigmaOpenApiClientUtilRegistrar
     /// <summary>
     /// Adds <see cref="FigmaOpenApiClientUtil"/> as a singleton service. <para/>
     /// </summary>
+    /// <param name="services">Service collection that receives the registration.</param>
+    /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddFigmaOpenApiClientUtilAsSingleton(this IServiceCollection services)
     {
         services.AddFigmaOpenApiHttpClientAsSingleton()
@@ -24,6 +26,8 @@ public static class FigmaOpenApiClientUtilRegistrar
     /// <summary>
     /// Adds <see cref="FigmaOpenApiClientUtil"/> as a scoped service. <para/>
     /// </summary>
+    /// <param name="services">Service collection that receives the registration.</param>
+    /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddFigmaOpenApiClientUtilAsScoped(this IServiceCollection services)
     {
         services.AddFigmaOpenApiHttpClientAsSingleton()
