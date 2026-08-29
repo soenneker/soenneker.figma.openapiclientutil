@@ -14,7 +14,7 @@ using Soenneker.Utils.AsyncSingleton;
 
 namespace Soenneker.Figma.OpenApiClientUtil;
 
-///<inheritdoc cref="IFigmaOpenApiClientUtil"/>
+/// <inheritdoc cref="IFigmaOpenApiClientUtil"/>
 public sealed class FigmaOpenApiClientUtil : IFigmaOpenApiClientUtil
 {
     private readonly AsyncSingleton<FigmaOpenApiClient> _client;
