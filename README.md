@@ -2,26 +2,41 @@
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.figma.openapiclientutil/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.figma.openapiclientutil/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/soenneker.figma.openapiclientutil.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.figma.openapiclientutil/)
 
-# ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Figma.OpenApiClientUtil
-### A thread-safe utility for obtaining Figma's OpenApiClient singleton.
+# Soenneker.Figma.OpenApiClientUtil
 
-## Installation
+Exposes a cached OpenAPI client instance.
 
-```
+## Install
+
+```bash
 dotnet add package Soenneker.Figma.OpenApiClientUtil
 ```
 
-## Configuration
+## Quick start
 
-For a personal access token:
+```csharp
+using Soenneker.Figma.OpenApiClientUtil.Registrars;
+using Microsoft.Extensions.DependencyInjection;
 
-```json
-{
-  "Figma": {
-    "ApiKey": "your-personal-access-token"
-  }
-}
+var services = new ServiceCollection();
+var result = services.AddFigmaOpenApiClientUtilAsSingleton();
 ```
 
-The default header is `X-Figma-Token`. For an OAuth access token, configure
-`AuthHeaderName` as `Authorization` and `AuthHeaderValueTemplate` as `Bearer {token}`.
+Adds `FigmaOpenApiClientUtil` as a singleton service.
+
+## What you get
+
+- `IFigmaOpenApiClientUtil` — Exposes a cached OpenAPI client instance.
+- `FigmaOpenApiClientUtilRegistrar` — Registers the OpenAPI client utility for dependency injection.
+
+## API at a glance
+
+| API | What it does | Result / important behavior |
+| --- | --- | --- |
+| `FigmaOpenApiClientUtilRegistrar.AddFigmaOpenApiClientUtilAsSingleton(services)` | Adds `FigmaOpenApiClientUtil` as a singleton service. | The same service collection, so additional registrations can be chained. |
+| `FigmaOpenApiClientUtilRegistrar.AddFigmaOpenApiClientUtilAsScoped(services)` | Adds `FigmaOpenApiClientUtil` as a scoped service. | The same service collection, so additional registrations can be chained. |
+
+## Practical notes
+
+- Reuse the registered client instead of constructing one per operation.
+- Dispose instances you own when their scope ends so held resources can be released.
