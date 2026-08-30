@@ -4,14 +4,14 @@ using System.Threading;
 using System.Threading.Tasks;
 namespace Soenneker.Figma.OpenApiClientUtil.Abstract;
 /// <summary>
-/// Exposes a cached OpenAPI client instance.
+/// Provides a generated Figma client cached for the lifetime of the utility.
 /// </summary>
 public interface IFigmaOpenApiClientUtil: IDisposable, IAsyncDisposable
 {
     /// <summary>
-    /// Returns the configured figma OpenAPI Client used by the Figma OpenAPI Client.
+    /// Returns the configured generated Figma client.
     /// </summary>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
-    /// <returns>A task whose result is the requested figma OpenAPI Client.</returns>
+    /// <returns>A task whose result is the client cached by this utility instance.</returns>
     ValueTask<FigmaOpenApiClient> Get(CancellationToken cancellationToken = default);
 }

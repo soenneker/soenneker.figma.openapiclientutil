@@ -1,42 +1,58 @@
 [![](https://img.shields.io/nuget/v/soenneker.figma.openapiclientutil.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.figma.openapiclientutil/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.figma.openapiclientutil/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.figma.openapiclientutil/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/soenneker.figma.openapiclientutil.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.figma.openapiclientutil/)
+[![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.figma.openapiclientutil/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.figma.openapiclientutil/actions/workflows/codeql.yml)
 
 # Soenneker.Figma.OpenApiClientUtil
 
-Exposes a cached OpenAPI client instance.
+Provides a scope-cached Kiota client over the long-lived authenticated Figma HTTP client.
 
-## Install
+## Installation
 
 ```bash
 dotnet add package Soenneker.Figma.OpenApiClientUtil
 ```
 
-## Quick start
+## Register the utility
 
 ```csharp
 using Soenneker.Figma.OpenApiClientUtil.Registrars;
 using Microsoft.Extensions.DependencyInjection;
 
-var services = new ServiceCollection();
-var result = services.AddFigmaOpenApiClientUtilAsSingleton();
+services.AddFigmaOpenApiClientUtilAsScoped();
 ```
 
-Adds `FigmaOpenApiClientUtil` as a singleton service.
+The scoped registration deliberately registers `IFigmaOpenApiHttpClient` as a singleton. Each application scope may dispose its utility and generated-client wrapper without discarding the HTTP transport needed by later scopes.
 
-## What you get
+Use `AddFigmaOpenApiClientUtilAsSingleton()` only when the generated client itself should live for the entire service provider lifetime. Both registration methods use `TryAdd`, allowing an application-provided implementation to win.
 
-- `IFigmaOpenApiClientUtil` — Exposes a cached OpenAPI client instance.
-- `FigmaOpenApiClientUtilRegistrar` — Registers the OpenAPI client utility for dependency injection.
+## Configuration
 
-## API at a glance
+```json
+{
+  "Figma": {
+    "ApiKey": "your-figma-token"
+  }
+}
+```
 
-| API | What it does | Result / important behavior |
-| --- | --- | --- |
-| `FigmaOpenApiClientUtilRegistrar.AddFigmaOpenApiClientUtilAsSingleton(services)` | Adds `FigmaOpenApiClientUtil` as a singleton service. | The same service collection, so additional registrations can be chained. |
-| `FigmaOpenApiClientUtilRegistrar.AddFigmaOpenApiClientUtilAsScoped(services)` | Adds `FigmaOpenApiClientUtil` as a scoped service. | The same service collection, so additional registrations can be chained. |
+Authentication and base-address settings are owned by `Soenneker.Figma.HttpClients`. `Figma:ApiKey` is required; `ClientBaseUrl`, `AuthHeaderName`, and `AuthHeaderValueTemplate` are optional overrides under the same section. Keep the token in secret storage.
 
-## Practical notes
+## Use the generated client
 
-- Reuse the registered client instead of constructing one per operation.
-- Dispose instances you own when their scope ends so held resources can be released.
+```csharp
+public sealed class FigmaFileReader(IFigmaOpenApiClientUtil clientUtil)
+{
+    public async Task<GetFileResponseResponse?> Get(
+        string fileKey,
+        CancellationToken cancellationToken)
+    {
+        FigmaOpenApiClient client = await clientUtil.Get(cancellationToken);
+        return await client.V1.Files[fileKey].GetAsync(cancellationToken: cancellationToken);
+    }
+}
+```
+
+`Get()` initializes at most one generated client per utility instance and returns that instance on later calls. The underlying `HttpClient` already carries the configured authentication header, so the Kiota adapter does not add a duplicate header.
+
+The DI container owns registered utilities; do not dispose an injected instance manually. Resolve scoped utilities only inside a scope.

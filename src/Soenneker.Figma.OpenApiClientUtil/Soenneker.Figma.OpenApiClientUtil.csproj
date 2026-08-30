@@ -43,7 +43,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Kiota.GenericAuthenticationProvider" Version="4.0.40" />
         <PackageReference Include="Soenneker.Figma.HttpClients" Version="4.0.15" />
         <PackageReference Include="Soenneker.Figma.OpenApiClient" Version="4.0.5" />
         <PackageReference Include="Soenneker.Utils.AsyncSingleton" Version="4.0.820" />
