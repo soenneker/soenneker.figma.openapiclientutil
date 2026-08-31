@@ -55,4 +55,4 @@ public sealed class FigmaFileReader(IFigmaOpenApiClientUtil clientUtil)
 
 `Get()` initializes at most one generated client per utility instance and returns that instance on later calls. The underlying `HttpClient` already carries the configured authentication header, so the Kiota adapter does not add a duplicate header.
 
-The DI container owns registered utilities; do not dispose an injected instance manually. Resolve scoped utilities only inside a scope.
+The service container owns registered instances; do not dispose an injected instance manually. Resolve scoped instances only inside a scope.
